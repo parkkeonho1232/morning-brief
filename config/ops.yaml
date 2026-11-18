@@ -1,0 +1,66 @@
+# 운영 설정 — Phase 0 결정 사항 (2026-11-15, PD 확정).
+
+timezone: Asia/Seoul
+
+daily:
+  window: { from: "05:30", to: "05:30" }   # 전날 05:30 ~ 당일 05:30 KST (D2)
+  batch_start: "05:30"                     # GitHub Actions cron 20:30 UTC
+  sla: "07:30"
+  updates: ["16:00", "20:00"]              # 오후 업데이트 (2026-11-18 결정, pg_cron 0006)
+
+weekly:
+  lock_day: thu                            # 다음 주 구성안 확정 요일 (D11)
+
+budget:
+  monthly_usd: 30                          # 월 상한 (D8). AI는 무료 등급만 써서 목표 $0. 유료 사용이 생기면 80%에 알림
+
+pipeline:                                  # 묶기·사건 연결 임계값 (bge-m3 기준, 2026-11-15 실측 보정: morning-brief calibrate)
+  cluster_sim: 0.70                        # 같은 묶음: 평균 코사인 유사도. 같은 사건 기사쌍 대부분 0.70~0.98
+  merge_low: 0.55                          # [0.55, 0.70)은 같은 사건 후속과 다른 사건이 섞임 → LLM 판정
+  min_sources: 2                           # 독립 매체 2곳 이상 보도한 묶음만 사건 후보
+  max_events_per_day: 60
+  event_active_days: 21                    # 마지막 변화 후 이 기간 안의 사건만 이어 붙임
+  link_high: 0.75                          # 사건 자동 연결
+  link_low: 0.55                           # [link_low, link_high)는 LLM이 판정
+  card_candidates: 15                      # 카드를 만들어 볼 상위 사건 수 (LLM 호출 수)
+  update_card_candidates: 8                # 오후 업데이트(16·20시)에서 새로 만들 카드 수 상한 (Gemini 무료 한도 보호)
+
+llm:                                       # 2026-11-15 PD 결정: 무료 등급만. 앞 모델이 실패하면 다음 모델 → Groq
+  gemini:
+    lite: [gemini-3.1-flash-lite, gemini-flash-lite-latest]   # 번역·같은 사건 판정 (2026-11-15 실측 0.9s)
+    main: [gemini-3.5-flash, gemini-3-flash-preview]          # 사실 추출·카드 (실측 3~4s)
+    # gemini-flash-latest(=3.8)·2.5-flash는 무료 등급에서 시간초과/404 — 쓰지 않음
+  groq: [openai/gpt-oss-120b, qwen/qwen3.8-27b]
+  embedding:
+    primary: bge-m3                        # 로컬(GitHub Actions CPU). 외부 한도 없음
+    gemini: gemini-embedding-2             # 예비. 무료 등급 분당 100문장(2026-11-15 실측) → 100건마다 61초 대기
+  min_interval_s: { gemini: 4.5, gemini_embed: 61, groq: 2.5 }   # 무료 등급 RPM 보호
+
+collect:
+  interval_min: 60                         # 피드(URL)당 최소 간격. 고빈도 매체는 섹션 피드로 분할 (D14)
+  user_agent: "morning-brief-collector/0.1 (+personal editorial tool)"  # 연락처는 .env CONTACT_EMAIL로 덧붙임
+
+delivery:
+  telegram: phase1                         # D7
+  email: phase2
+
+schedules:
+  assembly: api                            # 열린국회정보 OpenAPI
+  bok_mpc: manual                          # 한은 금통위 — 연 8회, 아래 목록 직접 입력
+  kostat: manual                           # KOSIS 공표일정은 '예정 월'만 있고 날짜가 없음 → config/schedules.yaml에 직접 입력
+  korea_kr: manual                         # 정책브리핑은 기계가 읽을 일정 형식 없음 → config/schedules.yaml에 직접 입력
+  assembly_days_ahead: 14                  # 국회 일정 조회 범위 (오늘부터)
+  bok_mpc_dates:                           # 한은 통화정책방향 결정회의 (공보 2025-10-24호, 2026-10-25호)
+    - 2026-11-26
+    - 2027-01-14
+    - 2027-02-25
+    - 2027-04-09
+    - 2027-05-27
+    - 2027-07-15
+    - 2027-08-26
+    - 2027-10-15
+    - 2027-11-25
+
+culture:
+  kobis: false                             # 박스오피스·개봉작 — PD 결정으로 제외 (2026-11-15)
+  books: false                             # 알라딘 OpenAPI 2026-10-30 종료 → PD 결정으로 제외 (2026-11-15)

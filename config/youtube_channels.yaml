@@ -1,0 +1,38 @@
+# Phase 0 확인 (2026-11-15): 각 채널 페이지의 externalId로 channel_id 확인.
+# 수집은 YouTube Data API만 사용. 채널 RSS(/feeds/videos.xml)는 youtube.com robots.txt가 Disallow라 쓰지 않음.
+#   새 영상: playlistItems.list(업로드 재생목록 = channel_id의 UC→UU) 1유닛/채널
+#   조회수:  videos.list 50개 ID당 1유닛
+#   → 시사 8채널 + 뉴스 8채널을 매시간 돌려도 하루 약 500유닛 (기본 할당량 10,000)
+
+# PD 지정 시사 채널 — 유튜브 반응 신호(평소 대비 조회수 속도)용
+channels:
+  - { handle: "@maebulshow",        name: "[팟빵] 최욱의 매불쇼",              channel_id: UCMYhq9OyGI5UEz_NTAoHY7A }
+  - { handle: "@agorapb",           name: "아고라",                          channel_id: UCavKamt3zRQ0hyoj9ClbnKw }
+  - { handle: "@jtbcshow",          name: "장르만 여의도",                    channel_id: UCsqWTNmoaNPvsfeCgaD7BpQ }
+  - { handle: "@mbcradio_sisa",     name: "MBC 라디오 시사",                  channel_id: UCTTmtS2ljy1vyl_s-d_LEHQ }
+  - { handle: null,                 name: "박성태의 뉴스쇼",                  channel_id: UC4Aa3OPkMenwTANpf0oWVRQ }  # CBS
+  - { handle: "@gyeomsonisnothing", name: "김어준의 겸손은힘들다 뉴스공장",    channel_id: UCAAvO0ehWox1bbym3rXKBZw }
+  - { handle: "@cbs_hanpan",        name: "박재홍의 한판승부",                channel_id: UCV9gIwasozKlwz5U2Sa2q6g }
+  - { handle: "@sbsradio_sisa",     name: "SBS 시사교양 라디오 - 시교라",      channel_id: UCLv3v82YNNsa8EsxrcPMjGQ }
+
+# 방송사 공식 뉴스 채널 (PD 확정 2026-11-15) — 방송 리포트 제목 + 반응 신호.
+# 특히 MBC는 웹 RSS가 robots 차단이라 이 채널이 유일한 공식 경로.
+news_channels:
+  - { handle: "@MBCNEWS11",      name: "MBCNEWS",              channel_id: UCF4Wxdo3inmxP-Y59wXDsFw, source: MBC }
+  - { handle: "@newskbs",        name: "KBS News",             channel_id: UCcQTRi69dsVYHN3exePtZ1A, source: KBS }
+  - { handle: "@sbsnews8",       name: "SBS 뉴스",             channel_id: UCkinYTS9IHqOEwR1Sze2JTw, source: SBS }
+  - { handle: "@jtbc_news",      name: "JTBC News",            channel_id: UCsU-I-vHLiaMfV_ceaYz5rQ, source: JTBC }
+  - { handle: "@ytnnews24",      name: "YTN",                  channel_id: UChlgI3UHCOnwUGzWzbJ3H5w, source: YTN }
+  - { handle: "@tvchosunnews",   name: "뉴스TVCHOSUN",          channel_id: UCWlV3Lz_55UaX4JsMj-z__Q, source: TV조선 }
+  - { handle: "@channelA-news",  name: "채널A News",            channel_id: UCfq4V1DAuaojnr2ryvWNysw, source: 채널A }
+  - { handle: "@yonhap",         name: "연합뉴스 Yonhapnews",   channel_id: UCj3_t5p4L4aFsvdW3uHjnnw, source: 연합뉴스 }
+  # MBN 뉴스 채널은 핸들을 찾지 못함 — PD 확인 필요
+
+# 추가 후보 (PD 확정 전까지 비활성)
+candidates:
+  - YTN 라디오 (뉴스정면승부, 뉴스명당)
+  - KBS 1라디오
+
+baseline:
+  sample_videos: 30          # 채널 기준선 계산에 쓸 최근 영상 수
+  checkpoints_hours: [6, 24] # 게시 후 조회수 비교 시점

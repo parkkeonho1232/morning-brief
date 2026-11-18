@@ -1,0 +1,27 @@
+[project]
+name = "morning-brief-collector"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+  "httpx",
+  "feedparser",
+  "pyyaml",
+  "psycopg[binary]",
+  "python-dotenv",
+  "numpy",
+  "scipy",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+embed = ["sentence-transformers"]      # bge-m3 로컬 임베딩 (daily 배치). torch는 CPU 빌드로 설치
+
+[project.scripts]
+morning-brief = "morning_brief.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["morning_brief*"]

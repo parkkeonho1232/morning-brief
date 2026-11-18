@@ -1,0 +1,135 @@
+# 매체 목록. Phase 0 검증 결과 반영 (2026-11-15).
+# group: 관점 비교용 그룹 — PD가 직접 지정/수정 (시스템이 성향을 단정하지 않음)
+# method: rss | sitemap | gnews | api | none
+#   sitemap: 매체가 robots.txt에 공개한 검색엔진용 뉴스 사이트맵(news:title, publication_date). 요약 없음.
+#   gnews: Google 뉴스 RSS 검색(site:도메인). 공식 경로가 없는 매체 보완용. 링크는 Google 경유 주소,
+#          요약 없음, 제목 끝의 " - 매체명"은 제거해서 저장.
+#   none이면 수집하지 않음. reason에 제외 사유.
+#   (naver는 약관상 저장·AI 입력 금지라 사용하지 않음)
+# feed_url: 문자열 1개 또는 목록(섹션 피드 여러 개를 합쳐 쓰는 매체)
+# paywall: true면 피드 제목·요약만 사용, 원문 열람 필요 표시
+# has_summary: 피드가 요약(리드)을 주는가. false면 제목만으로 묶기·분석
+# window_min: 2026-11-15(일) 저녁 측정, 피드 1회분이 덮는 시간 창(분). 평일엔 더 짧아짐.
+#   60 미만이면 1시간 간격 수집 시 누락 발생
+# tz_naive: true면 pubDate에 시간대가 없거나 비표준 → KST로 간주해 파싱
+# terms: RSS 안내 페이지에 명시된 이용 조건 (없으면 생략). 이 툴은 PD 개인·비상업 용도 (2026-11-15 확인)
+# yt_news: 해당 매체 공식 유튜브 뉴스 채널 ID — youtube_channels.yaml news_channels와 연결
+
+domestic:
+  - { name: MBC,        group: 지상파,   method: gnews, paywall: false, has_summary: false,
+      feed_url: "https://news.google.com/rss/search?q=site:imnews.imbc.com+when:1d&hl=ko&gl=KR&ceid=KR:ko",
+      note: "공식 RSS 없음 → Google 뉴스 RSS + 유튜브 MBCNEWS 채널로 보완" }
+  - { name: KBS,        group: 지상파,   method: sitemap, paywall: false, has_summary: false, window_min: 5591,
+      feed_url: "https://news.kbs.co.kr/sitemap/recentNewsList.xml",
+      note: "공식 RSS 없음. robots.txt 공개 사이트맵(2,500여 건, 제목·발행시각). 파일이 커서 조건부 요청(If-Modified-Since) 사용" }
+  - { name: SBS,        group: 지상파,   method: rss,  paywall: false, has_summary: true, window_min: 689,
+      feed_url: "https://news.sbs.co.kr/news/newsflashRssFeed.do?plink=RSSREADER",
+      terms: "개인 이용자의 비상업적 사용만 허가 (newsservice@sbs.co.kr)" }
+  - { name: JTBC,       group: 종편보도, method: rss,  paywall: false, has_summary: true, window_min: 1076,
+      feed_url: [
+        "https://news-ex.jtbc.co.kr/v1/get/rss/section/politics",
+        "https://news-ex.jtbc.co.kr/v1/get/rss/section/society",
+        "https://news-ex.jtbc.co.kr/v1/get/rss/section/economy",
+        "https://news-ex.jtbc.co.kr/v1/get/rss/section/international",
+      ],
+      note: "구 fs.jtbc.co.kr 피드는 발행시각 없음 → 사용 안 함" }
+  - { name: TV조선,     group: 종편보도, method: rss,  paywall: false, has_summary: true, window_min: 193,
+      feed_url: "https://news.tvchosun.com/site/data/rss/news.xml" }
+  - { name: 채널A,      group: 종편보도, method: sitemap, paywall: false, has_summary: false, window_min: 2163,
+      feed_url: "https://ichannela.com/sitemap/news-sitemap.do",
+      note: "공식 RSS 없음. robots.txt 공개 뉴스 사이트맵" }
+  - { name: MBN,        group: 종편보도, method: rss,  paywall: false, has_summary: true, window_min: 231,
+      feed_url: "https://www.mbn.co.kr/rss/" }
+  - { name: YTN,        group: 종편보도, method: sitemap, paywall: false, has_summary: false,
+      feed_url: "https://www.ytn.co.kr/sitemap/sitemap0.xml",
+      note: "공식 RSS 없음. robots.txt 공개 사이트맵(google_sitemap.xml 인덱스의 최신 파일, 1,000건)" }
+  - { name: 연합뉴스,   group: 통신사,   method: rss,  paywall: false, has_summary: true, window_min: 406,
+      feed_url: "https://www.yna.co.kr/rss/news.xml",
+      terms: "비상업적 블로그·개인 용도만 허용, 상업적 이용은 사전 서면 허가 (콘텐츠사업부 02-398-3563)" }
+  - { name: 뉴스1,      group: 통신사,   method: rss,  paywall: false, has_summary: true, window_min: 245,
+      feed_url: "https://www.news1.kr/api/feeds/google/",
+      note: "robots.txt에 공개된 구글뉴스 공급용 RSS. 요약은 content:encoded(평균 200자 리드)에서 앞부분만 사용, 전문이면 잘라 저장" }
+  - { name: 뉴시스,     group: 통신사,   method: rss,  paywall: false, has_summary: true, window_min: 296,
+      feed_url: "https://www.newsis.com/RSS/sokbo.xml" }
+  - { name: 한국경제,   group: 경제지,   method: rss,  paywall: false, has_summary: false, window_min: 701,
+      feed_url: [
+        "https://www.hankyung.com/feed/all-news",
+        "https://www.hankyung.com/feed/politics",
+        "https://www.hankyung.com/feed/society",
+        "https://www.hankyung.com/feed/international",
+        "https://www.hankyung.com/feed/economy",
+        "https://www.hankyung.com/feed/it",
+      ],
+      note: "전체 피드 + 섹션 피드 병행 (D14). 섹션만으로는 전체의 일부만 잡힘(3시간 11건 중 4건), 전체만으로는 평일 피크에 누락 → URL로 중복 제거" }
+  - { name: 매일경제,   group: 경제지,   method: rss,  paywall: false, has_summary: true, window_min: 206, tz_naive: true,
+      feed_url: "https://www.mk.co.kr/rss/30000001/",
+      note: "pubDate가 '+09:00' 비표준 형식" }
+  - { name: 서울경제,   group: 경제지,   method: rss,  paywall: false, has_summary: false, window_min: 1894,
+      feed_url: [
+        "https://www.sedaily.com/rss/newsall",
+        "https://www.sedaily.com/rss/politics",
+        "https://www.sedaily.com/rss/society",
+        "https://www.sedaily.com/rss/international",
+        "https://www.sedaily.com/rss/economy",
+      ],
+      note: "전체 피드 + 섹션 피드 병행 (D14). URL로 중복 제거" }
+  - { name: 머니투데이, group: 경제지,   method: rss,  paywall: false, has_summary: true, window_min: 411,
+      feed_url: "https://rss.mt.co.kr/mt_news.xml" }
+  - { name: 이데일리,   group: 경제지,   method: sitemap, paywall: false, has_summary: false, window_min: 2864,
+      feed_url: "https://www.edaily.co.kr/sitemap/latest-article.xml",
+      note: "RSS(rss.edaily.co.kr)는 11-13 이후 갱신 멈춤 + 시간 창 60분 → robots.txt 공개 사이트맵(473건)으로 교체" }
+  - { name: 한겨레,     group: 종합시사, method: gnews, paywall: false, has_summary: false,
+      feed_url: "https://news.google.com/rss/search?q=site:hani.co.kr+when:1d&hl=ko&gl=KR&ceid=KR:ko",
+      note: "자체 RSS를 받을 수 없어 Google 뉴스 RSS. 자체 RSS가 열리면 전환" }
+  - { name: 경향신문,   group: 종합시사, method: rss,  paywall: false, has_summary: true, window_min: 700,
+      feed_url: [
+        "https://www.khan.co.kr/rss/rssdata/total_news.xml",
+        "https://www.khan.co.kr/rss/rssdata/politic_news.xml",
+        "https://www.khan.co.kr/rss/rssdata/society_news.xml",
+        "https://www.khan.co.kr/rss/rssdata/kh_world.xml",
+        "https://www.khan.co.kr/rss/rssdata/economy_news.xml",
+        "https://www.khan.co.kr/rss/rssdata/culture_news.xml",
+      ],
+      note: "전체 피드 + 섹션 피드 병행 (D14). URL로 중복 제거" }
+  - { name: 시사IN,     group: 종합시사, method: rss,  paywall: false, has_summary: true, window_min: 7355,
+      feed_url: "https://cdn.sisain.co.kr/rss/gns_allArticle.xml",
+      note: "www.sisain.co.kr/rss/allArticle.xml은 2024년에 멈춘 구 피드" }
+  - { name: 시사저널,   group: 종합시사, method: rss,  paywall: false, has_summary: true, window_min: 2861, tz_naive: true,
+      feed_url: "https://www.sisajournal.com/rss/allArticle.xml" }
+  - { name: 미디어오늘, group: 미디어문화, method: sitemap, paywall: false, has_summary: false, window_min: 7210,
+      feed_url: "https://www.mediatoday.co.kr/sitemap.xml",
+      note: "RSS(/rss/)는 robots.txt 차단. 대신 robots.txt에 공개된 사이트맵(최신 100건) 사용" }
+  - { name: 씨네21,     group: 미디어문화, method: gnews, paywall: false, has_summary: false,
+      feed_url: "https://news.google.com/rss/search?q=site:cine21.com+when:7d&hl=ko&gl=KR&ceid=KR:ko",
+      note: "공식 RSS·사이트맵 없음 → Google 뉴스 RSS. 기사량이 적어 7일 범위로 조회" }
+
+international:
+  - { name: Reuters,         group: 해외통신, method: gnews, paywall: false, has_summary: false,
+      feed_url: "https://news.google.com/rss/search?q=site:reuters.com+when:1d&hl=en-US&gl=US&ceid=US:en",
+      note: "공식 RSS 폐지, 사이트맵 401 → Google 뉴스 RSS" }
+  - { name: AP,              group: 해외통신, method: gnews, paywall: false, has_summary: false,
+      feed_url: "https://news.google.com/rss/search?q=site:apnews.com+when:1d&hl=en-US&gl=US&ceid=US:en",
+      note: "공식 RSS 없음, 사이트맵 403 → Google 뉴스 RSS" }
+  - { name: BBC,             group: 해외공영, method: rss, paywall: false, has_summary: true, window_min: 2637,
+      feed_url: ["https://feeds.bbci.co.uk/news/world/rss.xml", "https://feeds.bbci.co.uk/news/world/asia/rss.xml"] }
+  - { name: The Guardian,    group: 해외종합, method: rss, paywall: false, has_summary: true, window_min: 17068,
+      feed_url: "https://www.theguardian.com/world/rss",
+      note: "Open Platform API(무료 키)로 대체 가능 — RSS로 충분" }
+  - { name: Al Jazeera,      group: 해외종합, method: rss, paywall: false, has_summary: true, window_min: 474,
+      feed_url: "https://www.aljazeera.com/xml/rss/all.xml" }
+  - { name: CNA,             group: 해외종합, method: rss, paywall: false, has_summary: true, window_min: 744,
+      feed_url: ["https://www.channelnewsasia.com/rssfeeds/8395744", "https://www.channelnewsasia.com/rssfeeds/8395986"],
+      note: "8395744=Asia, 8395986=Latest(요약 절반만 있음)" }
+  - { name: Financial Times, group: 해외경제, method: rss, paywall: true,  has_summary: true, window_min: 1500,
+      feed_url: "https://www.ft.com/world?format=rss" }
+  - { name: Bloomberg,       group: 해외경제, method: rss, paywall: true,  has_summary: true, window_min: 2203,
+      feed_url: ["https://feeds.bloomberg.com/politics/news.rss", "https://feeds.bloomberg.com/markets/news.rss", "https://feeds.bloomberg.com/technology/news.rss"] }
+  - { name: New York Times,  group: 해외종합, method: rss, paywall: true,  has_summary: true, window_min: 5426,
+      feed_url: "https://rss.nytimes.com/services/xml/rss/nyt/World.xml" }
+  - { name: Washington Post, group: 해외종합, method: rss, paywall: true,  has_summary: true, window_min: 2672,
+      feed_url: ["https://feeds.washingtonpost.com/rss/world", "https://feeds.washingtonpost.com/rss/politics"] }
+  - { name: The Economist,   group: 해외경제, method: rss, paywall: true,  has_summary: true, window_min: 24306,
+      feed_url: "https://www.economist.com/latest/rss.xml" }
+  - { name: Nikkei Asia,     group: 해외경제, method: rss, paywall: true,  has_summary: false,
+      feed_url: "https://asia.nikkei.com/rss/feed/nar",
+      note: "RSS 1.0(RDF), 제목·링크만 있고 발행시각 없음 → 최초 수집 시각을 published_at으로 사용" }
