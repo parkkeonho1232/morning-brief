@@ -17,18 +17,29 @@ export async function cardDates(limit = 30): Promise<string[]> {
   return rows.map((r) => r.d);
 }
 
-export async function cardsFor(date: string): Promise<Card[]> {
-  if (fixtureMode()) return FIXTURE_CARDS.filter((c) => c.base_date === date);
+/** 하루 3회차. 회차마다 카드를 따로 보관한다 (collector update.py) */
+export const EDITIONS = ["아침", "16시", "20시"] as const;
+
+/** 그날 카드가 있는 회차 (아침 → 16시 → 20시 순) */
+export async function editionsFor(date: string): Promise<string[]> {
+  const have = fixtureMode()
+    ? FIXTURE_CARDS.filter((c) => c.base_date === date).map((c) => c.edition)
+    : (await sql()<{ e: string }[]>`select distinct edition as e from card where base_date = ${date}`).map((r) => r.e);
+  return EDITIONS.filter((e) => have.includes(e));
+}
+
+export async function cardsFor(date: string, edition: string): Promise<Card[]> {
+  if (fixtureMode()) return FIXTURE_CARDS.filter((c) => c.base_date === date && c.edition === edition);
   return sql()<Card[]>`
-    select id::int, base_date::text, kind, rank, body from card
-    where base_date = ${date}
+    select id::int, base_date::text, edition, kind, rank, body from card
+    where base_date = ${date} and edition = ${edition}
     order by (kind = 'top') desc, rank`;
 }
 
 export async function cardById(id: number): Promise<Card | null> {
   if (fixtureMode()) return FIXTURE_CARDS.find((c) => c.id === id) ?? null;
   const rows = await sql()<Card[]>`
-    select id::int, base_date::text, kind, rank, body from card where id = ${id}`;
+    select id::int, base_date::text, edition, kind, rank, body from card where id = ${id}`;
   return rows[0] ?? null;
 }
 

@@ -1,13 +1,16 @@
 import Link from "next/link";
 import { CardTile } from "@/components/CardTile";
-import { cardDates, cardsFor, lastDailyRun, schedules } from "@/lib/data";
+import { EDITIONS, cardDates, cardsFor, editionsFor, lastDailyRun, schedules } from "@/lib/data";
 import { dateKo, isYmd, timeKST, todayKST, ymdKST } from "@/lib/format";
 
 export default async function Today({ searchParams }: PageProps<"/">) {
-  const { d } = await searchParams;
+  const { d, e } = await searchParams;
   const dates = await cardDates();
   const date = isYmd(typeof d === "string" ? d : null) ? (d as string) : dates[0] ?? todayKST();
-  const [cards, upcoming, run] = await Promise.all([cardsFor(date), schedules(todayKST(), 3), lastDailyRun()]);
+  const have = await editionsFor(date);
+  // 회차를 고르지 않았으면 가장 최근 회차를 보여준다
+  const edition = typeof e === "string" && have.includes(e) ? e : have.at(-1) ?? "아침";
+  const [cards, upcoming, run] = await Promise.all([cardsFor(date, edition), schedules(todayKST(), 3), lastDailyRun()]);
   const top = cards.filter((c) => c.kind === "top");
   const ext = cards.filter((c) => c.kind === "extension");
   const i = dates.indexOf(date);
@@ -30,9 +33,22 @@ export default async function Today({ searchParams }: PageProps<"/">) {
         <div className="tools">
           <Link className="btn" aria-disabled={!older} href={older ? `/?d=${older}` : "#"}>← 이전 날</Link>
           <Link className="btn" aria-disabled={!newer} href={newer ? `/?d=${newer}` : "#"}>다음 날 →</Link>
-          {cards.length > 0 && <Link className="btn primary" href={`/print?d=${date}`}>브리핑 묶음 인쇄</Link>}
+          {cards.length > 0 && <Link className="btn primary" href={`/print?d=${date}&e=${encodeURIComponent(edition)}`}>브리핑 묶음 인쇄</Link>}
         </div>
       </div>
+
+      <nav className="editions" aria-label="업데이트 회차">
+        {EDITIONS.map((x) => {
+          const ok = have.includes(x);
+          return (
+            <Link key={x} className={x === edition ? "on" : undefined} aria-current={x === edition ? "page" : undefined}
+              aria-disabled={!ok} href={ok ? `/?d=${date}&e=${encodeURIComponent(x)}` : "#"}>
+              {x === "아침" ? "아침 브리핑" : `${x} 업데이트`}
+              {!ok && <small>{x === "아침" ? "없음" : "아직"}</small>}
+            </Link>
+          );
+        })}
+      </nav>
 
       <section className="block">
         <h2>오늘 꼭 알아야 할 뉴스 <small>{top.length}건</small></h2>

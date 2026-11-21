@@ -98,3 +98,10 @@ def test_embed_cache_reuses_vectors(tmp_path, monkeypatch):
     v2, _ = daily.embed_articles([art(2, title="bbb"), art(3, title="c")])
     assert calls == [2, 1] and m == "bge-m3"
     assert np.allclose(v1[1], v2[0])
+
+
+def test_update_edition_labels():
+    from morning_brief.update import edition_order, slot_label
+    assert slot_label(16) == "16시" and slot_label(17) == "16시"   # 늦게 시작해도 예정 회차 이름
+    assert slot_label(20) == "20시" and slot_label(23) == "20시"
+    assert max(["아침", "20시", "16시"], key=edition_order) == "20시"

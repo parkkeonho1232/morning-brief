@@ -57,6 +57,7 @@ export type CardBody = {
 export type Card = {
   id: number;
   base_date: string; // YYYY-MM-DD
+  edition: string; // 아침 | 16시 | 20시
   kind: "top" | "extension";
   rank: number;
   body: CardBody;

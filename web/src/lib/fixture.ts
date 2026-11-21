@@ -18,7 +18,7 @@ const D = "2026-11-16";
 
 export const FIXTURE_CARDS: Card[] = [
   {
-    id: 1, base_date: D, kind: "top", rank: 1,
+    id: 1, base_date: D, edition: "아침", kind: "top", rank: 1,
     body: body({
       title: "[예시] 자격시험 AI 부정행위 자백", verification: "공식 확인",
       why_now: "[예시] 수석 합격자 A씨가 초소형 카메라와 AI를 썼다고 자백하면서 시험 관리 문제가 커졌다.",
@@ -41,7 +41,7 @@ export const FIXTURE_CARDS: Card[] = [
     }),
   },
   {
-    id: 2, base_date: D, kind: "top", rank: 2,
+    id: 2, base_date: D, edition: "16시", kind: "top", rank: 2,
     body: body({
       title: "[예시] 의원 발언 논란과 당내 대응", verification: "당사자 반박", edition: "16시",
       why_now: "[예시] 발언 영상이 퍼지면서 당 지도부가 입장을 냈다.",
@@ -50,7 +50,7 @@ export const FIXTURE_CARDS: Card[] = [
     }),
   },
   {
-    id: 3, base_date: D, kind: "extension", rank: 1,
+    id: 3, base_date: D, edition: "아침", kind: "extension", rank: 1,
     body: body({
       title: "[예시] 해외 부동산 개발사 대규모 유상증자", verification: "공식 확인",
       why_now: "[예시] 32억 달러 규모 증자 제안이 공시됐다.",

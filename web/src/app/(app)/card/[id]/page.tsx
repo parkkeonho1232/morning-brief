@@ -21,7 +21,7 @@ export default async function CardPage({ params }: PageProps<"/card/[id]">) {
   return (
     <main className="page">
       <div className="head no-print">
-        <Link href={`/?d=${card.base_date}`}>← {card.base_date} 카드 목록</Link>
+        <Link href={`/?d=${card.base_date}&e=${encodeURIComponent(card.edition)}`}>← {card.base_date} {card.edition} 카드 목록</Link>
         <div className="tools"><PrintButton label="이 카드 인쇄 / PDF" /></div>
       </div>
       <CardDetail card={card} />

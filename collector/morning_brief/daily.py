@@ -200,13 +200,14 @@ def rank(cards: list[dict], cfg: dict) -> tuple[list[dict], list[dict]]:
     return ranked[:5], ranked[5:10]
 
 
-def save_cards(conn, d: date, top: list[dict], ext: list[dict]):
-    conn.execute("delete from card where base_date = %s", (d,))
+def save_cards(conn, d: date, top: list[dict], ext: list[dict], edition: str = "아침"):
+    """그날 해당 회차(아침·16시·20시) 카드만 바꾼다. 다른 회차 카드는 그대로 둔다."""
+    conn.execute("delete from card where base_date = %s and edition = %s", (d, edition))
     for kind, cards in (("top", top), ("extension", ext)):
         for r, b in enumerate(cards, 1):
-            conn.execute("""insert into card (base_date, event_id, rank, kind, body)
-                            values (%s, (select id from event where id = %s), %s, %s, %s)""",
-                         (d, b["event_id"], r, kind,
+            conn.execute("""insert into card (base_date, edition, event_id, rank, kind, body)
+                            values (%s, %s, (select id from event where id = %s), %s, %s, %s)""",
+                         (d, edition, b["event_id"], r, kind,
                           json.dumps(b, ensure_ascii=False, default=str)))
 
 
@@ -260,7 +261,8 @@ def refresh_videos(d: date) -> int:
 def resend(d: date) -> int:
     """이미 만든 카드로 브리핑만 다시 보낸다 (테스트·재발송용)."""
     with db.connect() as conn:
-        rows = conn.execute("select kind, body from card where base_date = %s order by kind, rank", (d,)).fetchall()
+        rows = conn.execute("select kind, body from card where base_date = %s and edition = '아침' order by kind, rank",
+                            (d,)).fetchall()
     top = [r["body"] for r in rows if r["kind"] == "top"]
     ext = [r["body"] for r in rows if r["kind"] == "extension"]
     out = deliver(d, top, ext)

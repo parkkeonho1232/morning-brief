@@ -22,11 +22,12 @@ def run(d: date) -> int:
                 flag = " ⚠자동판정" if f["needs_review"] else ""
                 print(f"   - [{f['change_type']}] {f['fact']}  ← {srcs}{flag}")
 
-        cards = conn.execute("select kind, rank, body from card where base_date = %s order by kind desc, rank", (d,)).fetchall()
+        cards = conn.execute("""select edition, kind, rank, body from card where base_date = %s
+                                order by edition = '아침' desc, edition, kind desc, rank""", (d,)).fetchall()
         print(f"\n== {d} 카드 {len(cards)}장 (인물 후보)")
         for c in cards:
             b = c["body"]
-            print(f"\n<{c['kind']} {c['rank']}> {b['title']}")
+            print(f"\n<{c['edition']} {c['kind']} {c['rank']}> {b['title']}")
             for p in b.get("people") or []:
                 print(f"   기사 속: {p['name']} ({p.get('role') or '-'}) — {p.get('why') or ''}")
             for v in b.get("videos") or []:
